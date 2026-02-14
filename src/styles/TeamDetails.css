@@ -1,0 +1,79 @@
+.team-main {
+  padding: 32px 40px;
+  flex: 1;
+  background: #fff;
+}
+
+.back-link {
+  color: #808ef3;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.team-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.members-section {
+  max-width: 520px;
+}
+
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.members-label {
+  font-size: 25px;
+  color: #999;
+  letter-spacing: 0.8px;
+}
+
+.add-member-btn {
+  background: #4c65d4;
+  color: #e9eaf2;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffefe6;
+  color: #ff7a45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.member-name {
+  font-size: 20px;
+  color: #333;
+}
+
+.add-member-bottom {
+  margin-top: 35px;
+}
