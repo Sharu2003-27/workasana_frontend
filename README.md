@@ -1,16 +1,140 @@
-# React + Vite
+# Workasana Task Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack task and project management application where teams can create projects, assign tasks, track progress, and generate reports.
+Built to provide structured project tracking, team collaboration, and real-time task monitoring with an intuitive dashboard interface.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Demo Link
 
-## React Compiler
+[Live Demo](https://my-recipe-organizer.com)  
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Login
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+> **Guest**  
+> Username: `guest_user`  
+> Password: `guest_pass`
+
+---
+
+## Quick Start
+
+```
+git clone https://github.com/Sharu2003-27/workasana_frontend.git
+cd <workasana_frontend>
+npm install
+npm run dev  
+```
+
+## Technologies
+
+- React JS
+- React Router
+- Node.js
+- Express
+- MongoDB
+- JWT Authentication
+- Chart Library (for reports)
+
+## Demo Video
+Watch a walkthrough (5–7 minutes) of all major features of this app:
+[Loom Video Link]()
+
+## Features
+**Login Screen**
+- Basic email and password authentication
+- Login button for user authentication
+- Similar UI available for Signup
+
+**Dashboard Screen**
+- Sidebar navigation (Projects, Teams, Reports, Settings)
+- Displays list of active projects
+- Shows user-specific tasks
+- Add New Task button
+- Quick Filters:
+    - In Progress
+    - Completed
+
+**Project Management Screen**
+- Project-specific task listing
+- Displays:
+    - Task Status
+    - Owner
+    - Due Date
+- Add New Task button
+- Filter options:
+    - By Owner
+    - By Tag
+- Sort options:
+    - Due Date
+    - Priority
+
+**Task Creation Modal**
+- Create new task within a project
+- Fields include:
+    - Task Name
+    - Team (Dropdown Selection)
+    - Owners (Multi-select)
+    - Tags (Multi-select)
+    - Due Date (Date Picker)
+    - Estimated Time (Days)
+- Create Task button
+
+**Task Detail Screen**
+- Displays complete task information:
+    - Project Name
+    - Team Name
+    - Owners
+    - Tags
+    - Due Date
+- Shows task status:
+    - In Progress
+    - Completed
+- Time Remaining tracker
+- Mark as Complete button
+
+**Reports Screen**
+- Displays analytical charts for:
+    - Total Work Done Last Week
+    - Total Days of Work Pending
+    - Tasks Closed by Team
+    - Tasks Closed by Owner
+- Visual performance insights for better decision-
+
+**Team Management Screen**
+- View all existing teams
+- Add New Team button
+- Manage team structure
+- Navigate back to Dashboard
+
+## API Reference
+
+### **GET /api/projects**<br>	 
+List all projects<br>
+Sample Response:<br>
+```[{ _id, projectName, tasks, ... }, …]```
+
+### **GET /api/projects/:id**<br>	 	
+Get project details with tasks<br>		
+Sample Response:<br>
+```{ _id, projectName, tasks: [{ taskName, status, owner, dueDate }] }```
+
+### **POST /api/tasks**<br> 	
+Create a new task (Protected)<br>	
+Sample Response:<br>
+```{ _id, taskName, status, owner, dueDate }```
+
+### **PUT /api/tasks/:id**<br>  	
+Update task status or details (Protected)<br> 	 
+Sample Response:<br> 
+```{ _id, taskName, status: "Completed" }```
+
+### **POST /api/auth/login**<br>
+Authenticate user<br>
+Sample Response:<br>
+```{ userId, token }```
+
+## Contact
+For bugs or feature requests, please reach out to sharayu.borude@gmail.com

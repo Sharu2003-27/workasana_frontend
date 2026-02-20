@@ -1,5 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import "../styles/Report.css";
+import { useEffect, useState } from "react";
+import API from "../api/axios";
 
 import { Bar, Pie } from "react-chartjs-2";
 import {
@@ -22,52 +24,97 @@ ChartJS.register(
 );
 
 function Reports() {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const [tasks, setTasks] = useState([]);
 
-  // 1. Completed tasks last 7 days
+  useEffect(() => {
+    API.get("/tasks")
+      .then(res => setTasks(res.data || []))
+      .catch(err => console.error(err));
+  }, []);
+
+  // Completed Last 7 Days
   const lastWeek = new Date();
   lastWeek.setDate(lastWeek.getDate() - 7);
 
-  const completedLastWeek = tasks.filter(
-    t =>
+  const completedLastWeek = tasks.filter((t) => {
+    if (!t.updatedAt) return false;
+
+    return (
       t.status === "Completed" &&
       new Date(t.updatedAt) >= lastWeek
-  ).length;
+    );
+  }).length;
 
-  // 2. Pending work (days)
+  // Pending Work (Days)
   const pendingDays = tasks
-    .filter(t => t.status !== "Completed")
+    .filter((t) => t.status !== "Completed")
     .reduce((sum, t) => sum + Number(t.timeToComplete || 0), 0);
 
-  // 3. Closed by team
+  // Closed by Team/Owner/Project
   const closedByTeam = {};
   const closedByOwner = {};
   const closedByProject = {};
 
-  tasks.forEach(t => {
+  tasks.forEach((t) => {
     if (t.status === "Completed") {
       // Team
-      closedByTeam[t.team] = (closedByTeam[t.team] || 0) + 1;
+      if (t.team) {
+        closedByTeam[t.team] = (closedByTeam[t.team] || 0) + 1;
+      }
 
       // Project
-      closedByProject[t.project] =
-        (closedByProject[t.project] || 0) + 1;
+      if (t.project) {
+        closedByProject[t.project] =
+          (closedByProject[t.project] || 0) + 1;
+      }
 
       // Owners
-      t.owners?.forEach(o => {
-        closedByOwner[o] = (closedByOwner[o] || 0) + 1;
-      });
+      if (Array.isArray(t.owners)) {
+        t.owners.forEach((o) => {
+          closedByOwner[o] = (closedByOwner[o] || 0) + 1;
+        });
+      }
     }
   });
 
-  const bar = (label, value) => ({
+  // Chart Helpers
+  const barChartData = (label, value) => ({
     labels: [label],
-    datasets: [{ label, data: [value] }]
+    datasets: [
+      {
+        label,
+        data: [value],
+        backgroundColor: "rgba(54, 162, 235, 0.6)"
+      }
+    ]
   });
 
-  const pie = obj => ({
+  const dynamicBarData = (label, obj) => ({
     labels: Object.keys(obj),
-    datasets: [{ data: Object.values(obj) }]
+    datasets: [
+      {
+        label,
+        data: Object.values(obj),
+        backgroundColor: "rgba(75, 192, 192, 0.6)"
+      }
+    ]
+  });
+
+  const pieChartData = (obj) => ({
+    labels: Object.keys(obj),
+    datasets: [
+      {
+        data: Object.values(obj),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40"
+        ]
+      }
+    ]
   });
 
   return (
@@ -77,6 +124,7 @@ function Reports() {
       <div className="reports-main">
         <h2>Workasana Reports</h2>
 
+        {/* SUMMARY */}
         <div className="report-summary">
           <div className="summary-card">
             <span>Completed Last Week</span>
@@ -94,40 +142,60 @@ function Reports() {
           </div>
         </div>
 
+        {/* BAR CHARTS */}
         <div className="report-section">
           <h4>Total Work Done Last Week</h4>
           <div className="chart-wrapper">
-            <Bar data={bar("Completed Tasks", completedLastWeek)} />
+            <Bar data={barChartData("Completed Tasks", completedLastWeek)} />
           </div>
         </div>
 
         <div className="report-section">
           <h4>Total Days of Work Pending</h4>
           <div className="chart-wrapper">
-            <Bar data={bar("Pending Days", pendingDays)} />
+            <Bar data={barChartData("Pending Days", pendingDays)} />
           </div>
         </div>
 
+        {/* PIE CHARTS */}
         <div className="report-grid">
           <div className="report-section">
             <h4>Tasks Closed by Team</h4>
             <div className="chart-wrapper">
-              <Pie data={pie(closedByTeam)} />
+              {Object.keys(closedByTeam).length ? (
+                <Pie data={pieChartData(closedByTeam)} />
+              ) : (
+                <p>No completed tasks</p>
+              )}
             </div>
           </div>
 
           <div className="report-section">
             <h4>Tasks Closed by Owner</h4>
             <div className="chart-wrapper">
-              <Pie data={pie(closedByOwner)} />
+              {Object.keys(closedByOwner).length ? (
+                <Pie data={pieChartData(closedByOwner)} />
+              ) : (
+                <p>No completed tasks</p>
+              )}
             </div>
           </div>
         </div>
 
+        {/* ================= PROJECT BAR ================= */}
         <div className="report-section">
           <h4>Tasks Closed by Project</h4>
           <div className="chart-wrapper">
-            <Bar data={pie(closedByProject)} />
+            {Object.keys(closedByProject).length ? (
+              <Bar
+                data={dynamicBarData(
+                  "Tasks Closed",
+                  closedByProject
+                )}
+              />
+            ) : (
+              <p>No completed tasks</p>
+            )}
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import "../styles/CreateProjectModal.css";
 function CreateProjectModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("Planning");
 
   const handleCreate = () => {
     if (!name.trim()) {
@@ -11,15 +12,13 @@ function CreateProjectModal({ onClose, onCreate }) {
       return;
     }
 
-    const newProject = {
-      id: Date.now(),
+    onCreate({
       name,
       description,
-      status: "In Progress",
-    };
+      status,
+    });
 
-    onCreate(newProject); 
-    onClose();            
+    onClose();
   };
 
   return (
@@ -39,12 +38,20 @@ function CreateProjectModal({ onClose, onCreate }) {
             onChange={(e) => setName(e.target.value)}
           />
 
-          <label>Project Description</label>
+          <label>Description</label>
           <textarea
             placeholder="Enter Project Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+
+          <label>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="Planning">Planning</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+          </select>
         </div>
 
         <div className="modal-footer">

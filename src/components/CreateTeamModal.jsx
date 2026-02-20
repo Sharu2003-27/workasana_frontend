@@ -2,6 +2,7 @@ import Sidebar from "../components/Sidebar";
 import "../styles/Teams.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import API from "../api/axios";
 
 function CreateTeamModal() {
   const navigate = useNavigate();
@@ -9,35 +10,21 @@ function CreateTeamModal() {
   const [members, setMembers] = useState(["", "", ""]);
 
   const handleCreateTeam = async () => {
-  try {
-    const res = await fetch("https://workasana-backend-puce.vercel.app/teams", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
+    try {
+      await API.post("/teams", {
         name: teamName,
         members: members
           .filter(m => m.trim() !== "")
           .map(m => ({ name: m }))
-      })
-    });
+      });
 
-    const data = await res.json();
+      navigate("/teams");
 
-    if (!res.ok) {
-      alert(data.message); 
-      return;
+    } catch (err) {
+      console.error(err);
+      alert("Server down");
     }
-
-    navigate("/teams");
-
-  } catch (err) {
-    console.error(err);
-    alert("Server down");
-  }
-};
+  };
 
   return (
     <div className="team-layout">

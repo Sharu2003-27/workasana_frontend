@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../styles/TeamDetails.css";
 import CreateMemberModal from "../components/CreateMemberModal"
+import API from "../api/axios";
 
 function TeamDetails() {
   const { id } = useParams();
@@ -10,19 +11,13 @@ function TeamDetails() {
   const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
-  const fetchTeam = async () => {
-    const res = await fetch(`https://workasana-backend-puce.vercel.app/teams/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const fetchTeam = async () => {
+      const res = await API.get(`/teams/${id}`);
+      setTeam(res.data);
+    };
 
-    const data = await res.json();
-    setTeam(data);
-  };
-
-  fetchTeam();
-}, [id]);
+    fetchTeam();
+  }, [id]);
 
   if (!team) return <p>Loading...</p>;
 

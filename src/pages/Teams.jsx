@@ -3,29 +3,24 @@ import "../styles/Teams.css";
 import "../styles/CreateTaskModal.css"
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 function Teams() {
   const [teams, setTeams] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-  const fetchTeams = async () => {
-    try {
-      const res = await fetch("https://workasana-backend-puce.vercel.app/teams", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    const fetchTeams = async () => {
+      try {
+        const res = await API.get("/teams");
+        setTeams(res.data);
+      } catch (err) {
+        console.error("Fetch teams failed", err);
+      }
+    };
 
-      const data = await res.json();
-      setTeams(data);
-    } catch (err) {
-      console.error("Fetch teams failed", err);
-    }
-  };
-
-  fetchTeams(); 
-}, []);
+    fetchTeams();
+  }, []);
 
 
   return (
@@ -48,7 +43,7 @@ function Teams() {
             <p className="empty-text">No teams created yet</p>
           ) : (
             teams.map((team) => (
-              <div  key={team._id} className="team-card"
+              <div key={team._id} className="team-card"
                 onClick={() => navigate(`/teams/${team._id}`)}
                 style={{ cursor: "pointer" }} >
                 <h4>{team.name}</h4>

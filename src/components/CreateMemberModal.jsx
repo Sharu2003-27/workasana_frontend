@@ -1,28 +1,18 @@
 import { useState } from "react";
 import "../styles/CreateMemberModal.css";
+import API from "../api/axios";
 
 function CreateMemberModal({ teamId, onClose, onAdded }) {
   const [name, setName] = useState("");
 
   const handleAdd = async () => {
-  if (!name.trim()) return;
+    if (!name.trim()) return;
 
-  const res = await fetch(
-    `https://workasana-backend-puce.vercel.app/teams/${teamId}/add-member`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ name }),
-    }
-  );
+    const res = await API.post(`/teams/${teamId}/add-member`, { name });
 
-  const newMember = await res.json();
-  onAdded(newMember);
-  onClose();
-};
+    onAdded(res.data);
+    onClose();
+  };
 
   return (
     <div className="modal-backdrop">

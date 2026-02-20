@@ -1,122 +1,176 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Dashboard.css";
 import Sidebar from "../components/Sidebar";
-import TaskList from "../components/TaskList";
 import CreateProjectModal from "../components/CreateProjectModal";
 import CreateTaskModal from "../components/CreateTaskModal";
+import TaskList from "../components/TaskList";
+import API from "../api/axios";
+import "../styles/Dashboard.css";
 
 function Dashboard() {
-  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [teams, setTeams] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
-
-  const [projects, setProjects] = useState(() => {
-    return JSON.parse(localStorage.getItem("projects")) || [];
-  });
-
-  const [tasks, setTasks] = useState(() => {
-    return JSON.parse(localStorage.getItem("tasks")) || [];
-  });
 
   const [projectFilter, setProjectFilter] = useState("All");
   const [taskFilter, setTaskFilter] = useState("All");
+  const [projectFilterTask, setProjectFilterTask] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const navigate = useNavigate();
-
+  // LOAD DATA
   useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(projects));
-  }, [projects]);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+        const [projectRes, taskRes, teamRes] = await Promise.all([
+          API.get("/projects"),
+          API.get("/tasks"),
+          API.get("/teams"),
+        ]);
 
-  const addProject = (project) => {
-    setProjects((prev) => [...prev, project]);
+        setProjects(projectRes.data || []);
+        setTasks(taskRes.data || []);
+        setTeams(teamRes.data || []);
+      } catch (err) {
+        console.error("Dashboard Load Error:", err);
+        setError("Unable to load data. Please check backend connection.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // FETCH TASKS
+  const fetchTasks = async () => {
+    try {
+      const res = await API.get("/tasks");
+      setTasks(res.data);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    }
   };
 
-  const addTask = (task) => {
-    setTasks((prev) => [...prev, task]);
+  // ADD PROJECT
+  const addProject = async (projectData) => {
+    try {
+      const res = await API.post("/projects", projectData);
+      setProjects((prev) => [...prev, res.data]);
+      setShowProjectModal(false);
+    } catch (err) {
+      console.error("Create Project Error:", err);
+    }
   };
 
+  // ADD TASK
+  const addTask = async (taskData) => {
+    try {
+      await API.post("/tasks", taskData);
+
+      await fetchTasks();
+
+      setShowTaskModal(false);
+    } catch (err) {
+      console.error("Create Task Error:", err.response?.data || err.message);
+    }
+  };
+
+  // FILTER PROJECTS
   const filteredProjects = projects
+    .filter((p) => projectFilter === "All" || p.status === projectFilter)
     .filter(
-      (project) =>
-        projectFilter === "All" || project.status === projectFilter
-    )
-    .filter(
-      (project) =>
-        project.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      (p) =>
+        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+  // FILTER TASKS
   const filteredTasks = tasks
-    .filter(
-      (task) => taskFilter === "All" || task.status === taskFilter
-    )
-    .filter(
-      (task) =>
-        task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((t) => taskFilter === "All" || t.status === taskFilter)
+    .filter((t) => projectFilterTask === "All" || (t.project && t.project._id === projectFilterTask))
+    .filter((t) =>
+      t.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.taskName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+  // LOADING 
+  if (loading) {
+    return <h2 style={{ padding: "20px" }}>Loading Dashboard...</h2>;
+  }
 
   return (
     <div className="dashboard-layout">
       <Sidebar />
 
       <div className="dashboard-main">
-        {/* Search Bar */}
+        {error && <p className="error-msg">{error}</p>}
+
         <div className="dashboard-header">
-          <div className="search-wrapper">
-            <span className="search-icon">🔍</span>
-            <input
-              className="search-box"
-              placeholder="Search projects or tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+          <input
+            className="search-box"
+            placeholder="Search projects or tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
-        {/* Projects */}
+        {/* PROJECT SECTION */}
         <section>
           <div className="section-header">
-            <div className="section-left">
-              <h2>Projects</h2>
+            <h2>Projects</h2>
 
+            <div className="section-left">
               <select
                 className="filter"
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
               >
                 <option value="All">All</option>
+                <option value="Planning">Planning</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
               </select>
-            </div>
 
-            <button
-              className="btn-primary"
-              onClick={() => setShowModal(true)}
-            >
-              + New Project
-            </button>
+              <button
+                className="btn-primary"
+                onClick={() => setShowProjectModal(true)}
+              >
+                + New Project
+              </button>
+            </div>
           </div>
 
           <div className="project-grid">
             {filteredProjects.length === 0 ? (
-              <p className="empty-text">
-                No matching projects found.
-              </p>
+              <p>No projects found</p>
             ) : (
               filteredProjects.map((project) => (
                 <div
-                  key={project.id}
+                  key={project._id}
                   className="project-card"
-                  onClick={() => navigate(`/project/${project.id}`)}
+                  onClick={() => navigate(`/project/${project._id}`)}
                 >
-                  <span className="badge yellow">{project.status}</span>
+                  <span
+                    className={`badge ${project.status === "Completed"
+                        ? "green"
+                        : project.status === "In Progress"
+                          ? "yellow"
+                          : ""
+                      }`}
+                  >
+                    {project.status}
+                  </span>
                   <h3>{project.name}</h3>
                   <p>{project.description}</p>
                 </div>
@@ -125,39 +179,52 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* Tasks */}
+        {/* TASK SECTION */}
         <section>
           <div className="section-header">
+            <h2>My Tasks</h2>
+
             <div className="section-left">
-              <h2>My Tasks</h2>
+              <select
+                className="filter"
+                value={projectFilterTask}
+                onChange={(e) => setProjectFilterTask(e.target.value)}
+              >
+                <option value="All">All Projects</option>
+                {projects.map((p) => (
+                  <option key={p._id} value={p._id}>{p.name}</option>
+                ))}
+              </select>
 
               <select
                 className="filter"
                 value={taskFilter}
                 onChange={(e) => setTaskFilter(e.target.value)}
               >
-                <option value="All">All</option>
+                <option value="All">All Status</option>
+                <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
+                <option value="Blocked">Blocked</option>
               </select>
-            </div>
 
-            <button
-              className="btn-secondary"
-              onClick={() => setShowTaskModal(true)}
-            >
-              + New Task
-            </button>
+              <button
+                className="btn-primary"
+                onClick={() => setShowTaskModal(true)}
+              >
+                + New Task
+              </button>
+            </div>
           </div>
 
           <TaskList tasks={filteredTasks} />
         </section>
       </div>
 
-      {/* Modals */}
-      {showModal && (
+      {/* MODALS */}
+      {showProjectModal && (
         <CreateProjectModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowProjectModal(false)}
           onCreate={addProject}
         />
       )}
@@ -167,6 +234,7 @@ function Dashboard() {
           onClose={() => setShowTaskModal(false)}
           onCreate={addTask}
           projects={projects}
+          teams={teams}
         />
       )}
     </div>

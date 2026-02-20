@@ -1,3 +1,8 @@
+:root {
+  --card: #f1ecff;
+  --text: #444;
+}
+
 .dashboard-layout {
   display: flex;
   height: 100vh;
@@ -252,7 +257,8 @@
   transform: translateX(4px);
 }
 
-.sidebar {
-  background-color: var(--card);
-  color: var(--text);
+.error-msg {
+  color: red;
+  margin-bottom: 15px;
+  font-weight: 500;
 }
