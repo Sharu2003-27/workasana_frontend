@@ -24,6 +24,7 @@ function Dashboard() {
   const [taskFilter, setTaskFilter] = useState("All");
   const [projectFilterTask, setProjectFilterTask] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("taskName"); // "taskName", "dueDate", "status"
 
   // LOAD DATA
   useEffect(() => {
@@ -75,15 +76,9 @@ function Dashboard() {
 
   // ADD TASK
   const addTask = async (taskData) => {
-    try {
-      await API.post("/tasks", taskData);
-
-      await fetchTasks();
-
-      setShowTaskModal(false);
-    } catch (err) {
-      console.error("Create Task Error:", err.response?.data || err.message);
-    }
+    // taskData is already returned from backend in CreateTaskModal
+    setTasks((prev) => [...prev, taskData]);
+    setShowTaskModal(false);
   };
 
   // FILTER PROJECTS
@@ -100,20 +95,28 @@ function Dashboard() {
     .filter((t) => taskFilter === "All" || t.status === taskFilter)
     .filter((t) => projectFilterTask === "All" || (t.project && t.project._id === projectFilterTask))
     .filter((t) =>
-      t.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.taskName?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+      t.taskName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    .sort((a, b) => {
+      if (sortBy === "taskName") {
+        return (a.taskName || "").localeCompare(b.taskName || "");
+      } else if (sortBy === "dueDate") {
+        return new Date(a.dueDate || 0) - new Date(b.dueDate || 0);
+      } else if (sortBy === "status") {
+        return (a.status || "").localeCompare(b.status || "");
+      }
+      return 0;
+    });
 
-  // LOADING 
-  if (loading) {
-    return <h2 style={{ padding: "20px" }}>Loading Dashboard...</h2>;
-  }
+  // LOADING REMOVED FROM TOP LEVEL TO SHOW SIDEBAR
 
   return (
     <div className="dashboard-layout">
       <Sidebar />
 
       <div className="dashboard-main">
+        {loading && <div className="loading-overlay">Loading Dashboard...</div>}
         {error && <p className="error-msg">{error}</p>}
 
         <div className="dashboard-header">
@@ -163,10 +166,10 @@ function Dashboard() {
                 >
                   <span
                     className={`badge ${project.status === "Completed"
-                        ? "green"
-                        : project.status === "In Progress"
-                          ? "yellow"
-                          : ""
+                      ? "green"
+                      : project.status === "In Progress"
+                        ? "yellow"
+                        : ""
                       }`}
                   >
                     {project.status}
@@ -206,6 +209,16 @@ function Dashboard() {
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
                 <option value="Blocked">Blocked</option>
+              </select>
+
+              <select
+                className="filter"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="taskName">Sort by Name</option>
+                <option value="dueDate">Sort by Due Date</option>
+                <option value="status">Sort by Status</option>
               </select>
 
               <button

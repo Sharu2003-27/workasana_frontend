@@ -40,13 +40,15 @@ function TaskDetails() {
     }
   };
 
-  if (!task) return <h2>Loading...</h2>;
+  // LOADING REMOVED FROM TOP LEVEL
 
   return (
     <div className="dashboard-layout">
       <Sidebar />
       <div className="dashboard-main">
-        {isEditing ? (
+        {!task ? (
+          <h2>Loading...</h2>
+        ) : isEditing ? (
           <div style={{ padding: "20px", background: "white", borderRadius: "8px", maxWidth: "600px" }}>
             <h2>Edit Task</h2>
             <div style={{ marginBottom: "15px" }}>

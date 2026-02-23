@@ -9,13 +9,18 @@ function Teams() {
   const [teams, setTeams] = useState([]);
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchTeams = async () => {
       try {
+        setLoading(true);
         const res = await API.get("/teams");
         setTeams(res.data);
       } catch (err) {
         console.error("Fetch teams failed", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -28,6 +33,7 @@ function Teams() {
       <Sidebar />
 
       <div className="team-main">
+        {loading && <div className="loading-overlay">Loading Teams...</div>}
         <div className="team-header">
           <h2>Teams</h2>
           <button

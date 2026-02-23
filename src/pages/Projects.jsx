@@ -95,9 +95,8 @@ function Projects() {
         )}
 
         {/* Content */}
-        {loading ? (
-          <div className="loading">Loading projects...</div>
-        ) : filteredProjects.length === 0 ? (
+        {loading && <div className="loading-overlay">Loading projects...</div>}
+        {!loading && filteredProjects.length === 0 ? (
           <div className="empty-state">
             <h3>No Projects Yet 🚀</h3>
             <p>Create your first project to get started</p>

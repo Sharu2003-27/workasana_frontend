@@ -10,49 +10,64 @@ function TeamDetails() {
   const [team, setTeam] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchTeam = async () => {
-      const res = await API.get(`/teams/${id}`);
-      setTeam(res.data);
+      try {
+        setLoading(true);
+        const res = await API.get(`/teams/${id}`);
+        setTeam(res.data);
+      } catch (err) {
+        console.error("Fetch team details failed", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchTeam();
   }, [id]);
 
-  if (!team) return <p>Loading...</p>;
+  // LOADING REMOVED FROM TOP LEVEL
 
   return (
     <div className="team-layout">
       <Sidebar />
 
       <div className="team-main">
-        <p className="back-link" onClick={() => window.history.back()}>
-          ← Back to Teams
-        </p>
+        {!team ? (
+          <div className="loading-overlay">Loading Team Details...</div>
+        ) : (
+          <>
+            <p className="back-link" onClick={() => window.history.back()}>
+              ← Back to Teams
+            </p>
 
-        <h2 className="team-title">{team.name}</h2>
+            <h2 className="team-title">{team.name}</h2>
 
-        <div className="members-header">
-          <span className="members-label">MEMBERS</span>
-        </div>
-
-        <div className="members-list">
-          {team.members.map((m, i) => (
-            <div key={i} className="member-row">
-              <div className="member-avatar">
-                {m.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="member-name">{m.name}</span>
+            <div className="members-header">
+              <span className="members-label">MEMBERS</span>
             </div>
-          ))}
-        </div>
 
-        <button
-          className="add-member-btn add-member-bottom"
-          onClick={() => setShowAdd(true)}
-        >
-          + Member
-        </button>
+            <div className="members-list">
+              {team.members.map((m, i) => (
+                <div key={i} className="member-row">
+                  <div className="member-avatar">
+                    {m.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="member-name">{m.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="add-member-btn add-member-bottom"
+              onClick={() => setShowAdd(true)}
+            >
+              + Member
+            </button>
+          </>
+        )}
       </div>
 
       {showAdd && (

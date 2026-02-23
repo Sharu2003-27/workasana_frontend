@@ -26,10 +26,14 @@ ChartJS.register(
 function Reports() {
   const [tasks, setTasks] = useState([]);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
+    setLoading(true);
     API.get("/tasks")
       .then(res => setTasks(res.data || []))
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
   // Completed Last 7 Days
@@ -59,19 +63,22 @@ function Reports() {
     if (t.status === "Completed") {
       // Team
       if (t.team) {
-        closedByTeam[t.team] = (closedByTeam[t.team] || 0) + 1;
+        const teamName = typeof t.team === 'object' ? t.team.name : t.team;
+        closedByTeam[teamName] = (closedByTeam[teamName] || 0) + 1;
       }
 
       // Project
       if (t.project) {
-        closedByProject[t.project] =
-          (closedByProject[t.project] || 0) + 1;
+        const projectName = typeof t.project === 'object' ? t.project.name : t.project;
+        closedByProject[projectName] =
+          (closedByProject[projectName] || 0) + 1;
       }
 
       // Owners
       if (Array.isArray(t.owners)) {
         t.owners.forEach((o) => {
-          closedByOwner[o] = (closedByOwner[o] || 0) + 1;
+          const ownerName = typeof o === 'object' ? o.name : o;
+          closedByOwner[ownerName] = (closedByOwner[ownerName] || 0) + 1;
         });
       }
     }
@@ -122,6 +129,7 @@ function Reports() {
       <Sidebar />
 
       <div className="reports-main">
+        {loading && <div className="loading-overlay">Loading Reports...</div>}
         <h2>Workasana Reports</h2>
 
         {/* SUMMARY */}

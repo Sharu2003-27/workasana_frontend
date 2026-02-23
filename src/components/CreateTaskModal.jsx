@@ -9,6 +9,7 @@ function CreateTaskModal({ onClose, onCreate, projects = [], teams = [] }) {
   const [tags, setTags] = useState("");
   const [status, setStatus] = useState("To Do");
   const [timeToComplete, setTimeToComplete] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Owners
@@ -43,6 +44,31 @@ function CreateTaskModal({ onClose, onCreate, projects = [], teams = [] }) {
       return;
     }
 
+    if (selectedOwners.length === 0) {
+      alert("Please select at least one owner");
+      return;
+    }
+
+    if (!timeToComplete || Number(timeToComplete) <= 0) {
+      alert("Please enter a valid time to complete (days)");
+      return;
+    }
+
+    if (!tags.trim()) {
+      alert("Please enter at least one tag");
+      return;
+    }
+
+    if (!status) {
+      alert("Please select a status");
+      return;
+    }
+
+    if (!dueDate) {
+      alert("Please select a due date");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -56,6 +82,7 @@ function CreateTaskModal({ onClose, onCreate, projects = [], teams = [] }) {
           : [],
         status,
         timeToComplete: Number(timeToComplete) || 0,
+        dueDate: dueDate,
       };
 
       const response = await api.post("/tasks", newTask);
@@ -147,6 +174,16 @@ function CreateTaskModal({ onClose, onCreate, projects = [], teams = [] }) {
               placeholder="e.g. 5"
               value={timeToComplete}
               onChange={(e) => setTimeToComplete(e.target.value)}
+            />
+          </div>
+
+          {/* DUE DATE */}
+          <div className="form-group">
+            <label>Due Date</label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
             />
           </div>
 

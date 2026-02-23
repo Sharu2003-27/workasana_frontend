@@ -13,11 +13,11 @@ function TaskList({ tasks }) {
         <div
           key={task._id}
           className="task-card"
-          onClick={() => navigate(`/task/${task._id}`)}
+          onClick={() => navigate(`/tasks/${task._id}`)}
         >
-          <h4>{task.name}</h4>
+          <h4>{task.taskName}</h4>
           <p>Team: {task.team?.name}</p>
-          <p>Due: {task.dueDate?.substring(0, 10)}</p>
+          <p>Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'}</p>
           <span className="badge yellow">{task.status}</span>
         </div>
       ))}
