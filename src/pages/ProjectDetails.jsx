@@ -66,9 +66,21 @@ function ProjectDetails() {
   }
 
   if (sortOrder === "dateAsc") {
-    filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    filteredTasks.sort((a, b) => {
+      const da = a.dueDate || a.DueDate || a.date || a.Date || a.due || a.due_date || a.dueOn || a.due_on;
+      const db = b.dueDate || b.DueDate || b.date || b.Date || b.due || b.due_date || b.dueOn || b.due_on;
+      if (!da) return 1;
+      if (!db) return -1;
+      return new Date(da) - new Date(db);
+    });
   } else if (sortOrder === "dateDesc") {
-    filteredTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    filteredTasks.sort((a, b) => {
+      const da = a.dueDate || a.DueDate || a.date || a.Date || a.due || a.due_date || a.dueOn || a.due_on;
+      const db = b.dueDate || b.DueDate || b.date || b.Date || b.due || b.due_date || b.dueOn || b.due_on;
+      if (!da) return 1;
+      if (!db) return -1;
+      return new Date(db) - new Date(da);
+    });
   }
 
   return (
@@ -131,20 +143,81 @@ function ProjectDetails() {
             {filteredTasks.length === 0 ? (
               <p>No tasks found</p>
             ) : (
-              <ul className="task-list-simple">
-                {filteredTasks.map((task) => (
-                  <li
-                    key={task._id || task.id}
-                    className="task-item-clickable"
-                    onClick={() => navigate(`/tasks/${task._id}`)}
-                    style={{ padding: "10px", borderBottom: "1px solid #eee", listStyleType: "none", backgroundColor: "white", marginBottom: "5px", borderRadius: "5px", cursor: "pointer" }}
-                  >
-                    <strong>{task.taskName}</strong> — <span className={`badge ${task.status === "Completed" ? "green" : "yellow"}`}>{task.status}</span>
-                    {task.dueDate && <span style={{ marginLeft: "10px", fontSize: "0.9em", color: "#666" }}>Due: {new Date(task.dueDate).toLocaleDateString()}</span>}
-                  </li>
-                ))}
-              </ul>
+              <div className="task-list-container">
+                <table className="task-table">
+                  <thead>
+                    <tr>
+                      <th>TASKS</th>
+                      <th>OWNER</th>
+                      <th>TAGS</th>
+                      <th>TEAM</th>
+                      <th>DUE ON</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTasks.map((task) => {
+                      // EXHAUSTIVE FALLBACKS FOR DEPLOYED BACKEND
+                      const dDate = task.dueDate || task.DueDate || task.date || task.Date || task.due || task.due_date || task.dueOn || task.due_on || task.deadline || task.targetDate;
+                      const tName = task.taskName || task.TaskName || task.name || task.Title || task.title || "Untitled Task";
+
+                      let teamDisplay = task.team?.name;
+                      if (!teamDisplay && typeof task.team === 'string') {
+                        const foundTeam = teams.find(t => t._id === task.team);
+                        if (foundTeam) teamDisplay = foundTeam.name;
+                      }
+
+                      return (
+                        <tr
+                          key={task._id}
+                          className="task-row-clickable"
+                          onClick={() => navigate(`/tasks/${task._id}`)}
+                        >
+                          <td className="task-name-cell">
+                            <strong>{tName}</strong>
+                          </td>
+                          <td>
+                            <div className="owner-avatars">
+                              {task.owners && task.owners.length > 0 ? (
+                                task.owners.map((o, idx) => {
+                                  const ownerName = typeof o === 'object' ? o.name : "User";
+                                  return (
+                                    <span key={o._id || idx} title={ownerName} className="owner-badge">
+                                      {ownerName?.charAt(0).toUpperCase()}
+                                    </span>
+                                  );
+                                })
+                              ) : "No Owner"}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="tags-container">
+                              {task.tags?.map((tag, idx) => (
+                                <span key={idx} className="tag-pill">{tag}</span>
+                              ))}
+                            </div>
+                          </td>
+                          <td>{teamDisplay || 'N/A'}</td>
+                          <td className="due-date-cell">
+                            {dDate ? new Date(dDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date'}
+                          </td>
+                          <td>
+                            <span className={`badge ${task.status === "Completed" ? "green" :
+                              task.status === "In Progress" ? "yellow" :
+                                task.status === "Blocked" ? "red" : "blue"
+                              }`}>{task.status}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+
+
+                  </tbody>
+                </table>
+              </div>
             )}
+
           </>
         )}
       </div>

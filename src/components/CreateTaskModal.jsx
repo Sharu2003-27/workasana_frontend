@@ -11,13 +11,10 @@ function CreateTaskModal({ onClose, onCreate, projects = [], teams = [] }) {
   const [timeToComplete, setTimeToComplete] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Owners
   const [users, setUsers] = useState([]);
   const [selectedOwners, setSelectedOwners] = useState([]);
 
   useEffect(() => {
-    // Fetch users for the owners dropdown
     api.get("/auth/users").then(res => {
       if (res.data) setUsers(res.data);
     }).catch(err => console.error("Could not fetch users for owners", err));

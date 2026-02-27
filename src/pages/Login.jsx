@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import API from "../api/axios";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -12,21 +13,14 @@ function Login() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
-    const res = await fetch("https://workasana-backend-puce.vercel.app/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
+    try {
+      const res = await API.post("/auth/login", { email, password });
       alert("Login successful");
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
-    } else {
-      alert(data.error);
+    } catch (err) {
+      console.error("Login Error:", err);
+      alert(err.response?.data?.error || "Login failed. Check your connection.");
     }
   };
 

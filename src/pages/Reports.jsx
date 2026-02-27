@@ -69,15 +69,15 @@ function Reports() {
 
       // Project
       if (t.project) {
-        const projectName = typeof t.project === 'object' ? t.project.name : t.project;
-        closedByProject[projectName] =
-          (closedByProject[projectName] || 0) + 1;
+        const projectName = typeof t.project === 'object' ? (t.project.name || t.project.projectName) : t.project;
+        closedByProject[projectName] = (closedByProject[projectName] || 0) + 1;
       }
 
       // Owners
       if (Array.isArray(t.owners)) {
         t.owners.forEach((o) => {
-          const ownerName = typeof o === 'object' ? o.name : o;
+          if (!o) return;
+          const ownerName = typeof o === 'object' ? (o.name || "User") : o;
           closedByOwner[ownerName] = (closedByOwner[ownerName] || 0) + 1;
         });
       }

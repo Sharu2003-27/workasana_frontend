@@ -93,21 +93,34 @@ function Dashboard() {
   // FILTER TASKS
   const filteredTasks = tasks
     .filter((t) => taskFilter === "All" || t.status === taskFilter)
-    .filter((t) => projectFilterTask === "All" || (t.project && t.project._id === projectFilterTask))
-    .filter((t) =>
-      t.taskName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
+    .filter((t) => {
+      if (projectFilterTask === "All") return true;
+      const tProjId = typeof t.project === 'object' ? t.project?._id : t.project;
+      return tProjId === projectFilterTask;
+    })
+    .filter((t) => {
+      const search = searchQuery.toLowerCase();
+      const name = (t.taskName || t.TaskName || t.name || "").toLowerCase();
+      const tags = t.tags?.some(tag => tag.toLowerCase().includes(search));
+      return name.includes(search) || tags;
+    })
     .sort((a, b) => {
       if (sortBy === "taskName") {
-        return (a.taskName || "").localeCompare(b.taskName || "");
+        const nameA = a.taskName || a.TaskName || a.name || "";
+        const nameB = b.taskName || b.TaskName || b.name || "";
+        return nameA.localeCompare(nameB);
       } else if (sortBy === "dueDate") {
-        return new Date(a.dueDate || 0) - new Date(b.dueDate || 0);
+        const da = a.dueDate || a.DueDate || a.date || a.Date || a.due || a.due_date || a.dueOn || a.due_on;
+        const db = b.dueDate || b.DueDate || b.date || b.Date || b.due || b.due_date || b.dueOn || b.due_on;
+        if (!da) return 1;
+        if (!db) return -1;
+        return new Date(da) - new Date(db);
       } else if (sortBy === "status") {
         return (a.status || "").localeCompare(b.status || "");
       }
       return 0;
     });
+
 
   // LOADING REMOVED FROM TOP LEVEL TO SHOW SIDEBAR
 
@@ -230,7 +243,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <TaskList tasks={filteredTasks} />
+          <TaskList tasks={filteredTasks} teams={teams} />
         </section>
       </div>
 

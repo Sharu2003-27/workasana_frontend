@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Login.css"; 
+import "../styles/Login.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import API from "../api/axios";
 
 function Signup() {
   const [name, setName] = useState("");
@@ -13,20 +14,13 @@ function Signup() {
 
   const handleSignup = async (event) => {
     event.preventDefault();
-
-    const res = await fetch("https://workasana-backend-puce.vercel.app/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
+    try {
+      const res = await API.post("/auth/signup", { name, email, password });
       alert("Signup successful! Please login.");
       navigate("/login");
-    } else {
-      alert(data.error);
+    } catch (err) {
+      console.error("Signup Error:", err);
+      alert(err.response?.data?.error || "Signup failed. The server might be having issues.");
     }
   };
 
@@ -51,7 +45,7 @@ function Signup() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-         <label>Password</label>
+          <label>Password</label>
           <div className="password-wrapper">
             <input
               type={showPassword ? "text" : "password"}

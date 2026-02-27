@@ -17,10 +17,15 @@ function TaskDetails() {
       try {
         const res = await API.get(`/tasks/${id}`);
         setTask(res.data);
+        const taskFetched = res.data;
         setEditData({
-          taskName: res.data.taskName || res.data.name,
-          status: res.data.status,
+          taskName: taskFetched.taskName || taskFetched.name || "",
+          status: taskFetched.status || "To Do",
+          dueDate: taskFetched.dueDate ? new Date(taskFetched.dueDate).toISOString().substring(0, 10) : "",
+          tags: taskFetched.tags ? taskFetched.tags.join(", ") : "",
+          timeToComplete: taskFetched.timeToComplete || 0
         });
+
       } catch (err) {
         console.error("Error loading task:", err);
       }
@@ -31,7 +36,12 @@ function TaskDetails() {
 
   const handleUpdate = async () => {
     try {
-      const res = await API.post(`/tasks/${id}`, editData);
+      const dataToSend = {
+        ...editData,
+        tags: editData.tags ? editData.tags.split(",").map(t => t.trim()) : [],
+        timeToComplete: Number(editData.timeToComplete)
+      };
+      const res = await API.post(`/tasks/${id}`, dataToSend);
       setTask(res.data);
       setIsEditing(false);
     } catch (err) {
@@ -62,6 +72,36 @@ function TaskDetails() {
             </div>
 
             <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>Due Date</label>
+              <input
+                type="date"
+                value={editData.dueDate}
+                onChange={e => setEditData({ ...editData, dueDate: e.target.value })}
+                style={{ width: "100%", padding: "8px" }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>Time to Complete (days)</label>
+              <input
+                type="number"
+                value={editData.timeToComplete}
+                onChange={e => setEditData({ ...editData, timeToComplete: e.target.value })}
+                style={{ width: "100%", padding: "8px" }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>Tags (comma separated)</label>
+              <input
+                type="text"
+                value={editData.tags}
+                onChange={e => setEditData({ ...editData, tags: e.target.value })}
+                style={{ width: "100%", padding: "8px" }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "15px" }}>
               <label style={{ display: "block", marginBottom: "5px" }}>Status</label>
               <select
                 value={editData.status}
@@ -84,7 +124,7 @@ function TaskDetails() {
             <p><b>Team:</b> {task.team?.name}</p>
             <p><b>Owners:</b> {task.owners?.map(o => o.name).join(", ")}</p>
             <p><b>Tags:</b> {task.tags?.join(", ")}</p>
-            <p><b>Due Date:</b> {task.dueDate ? task.dueDate.substring(0, 10) : 'Not set'}</p>
+            <p><b>Due Date:</b> {(task.dueDate || task.date || task.due_date) ? new Date(task.dueDate || task.date || task.due_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</p>
             <p><b>Time To Complete:</b> {task.timeToComplete} days</p>
             <p><b>Status:</b> <span className="badge yellow">{task.status}</span></p>
 
