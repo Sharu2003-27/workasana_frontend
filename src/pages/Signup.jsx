@@ -63,15 +63,13 @@ function Signup() {
 
           <button type="submit">Create Account</button>
 
-          <p className="signup-login">
-            Already have an account?{" "}
-            <span
-              className="signup-btn"
-              onClick={() => navigate("/login")}
-            >
+          <p className="signup-label">Already have an account?</p>
+          <p className="signup-btn">
+            <span onClick={() => navigate("/login")}>
               Login
             </span>
           </p>
+
         </div>
       </form>
     </div>

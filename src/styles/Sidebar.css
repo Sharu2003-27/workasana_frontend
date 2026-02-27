@@ -1,33 +1,119 @@
-.sidebar-link {
+/* Sidebar Mobile-First */
+.mobile-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  text-decoration: none;
-  color: #444;
-  font-size: 14px;
-  border-radius: 6px;
-  transition: 0.2s;
+  padding: 1rem 1.5rem;
+  background-color: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+}
+
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none;
+  }
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.menu-toggle {
   background: none;
   border: none;
-  width: 100%;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--text);
   cursor: pointer;
 }
 
+.sidebar {
+  position: fixed;
+  left: -280px;
+  /* Hidden by default on mobile */
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  background-color: var(--card);
+  z-index: 1002;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+}
+
+.sidebar.open {
+  transform: translateX(280px);
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    position: sticky;
+    left: 0;
+    transform: none;
+    height: 100vh;
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+  }
+
+  .desktop-logo {
+    display: block;
+    margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-logo {
+    display: none;
+  }
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
 .sidebar-link:hover {
-  background-color: #f3f4f6;
+  background-color: var(--bg);
+  color: var(--primary);
 }
 
 .sidebar-link.active {
-  background-color: #e5e7eb;
-  font-weight: 600;
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--primary);
 }
 
 .logout-link {
-  margin-top: auto; 
-  color: #444;
+  margin-top: auto;
+  border: none;
+  background: none;
+  width: 100%;
 }
 
-.logout-link:hover {
-  background-color: #fee2e2;
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1001;
 }

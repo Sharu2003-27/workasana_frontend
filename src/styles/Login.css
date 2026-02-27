@@ -1,79 +1,100 @@
 .page {
-  height: 100vh;
-  background: #af87ef;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #af87ef 0%, #7fb0e8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--space-md);
 }
 
 .main-card {
-  width: 950px;
-  height: 650px;
-  background: linear-gradient(135deg, #ef89fa, #7fb0e8);
-  border-radius: 16px;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 900px;
+  min-height: 550px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+/* Hide decorative side on mobile */
+@media (max-width: 768px) {
+  .main-card {
+    flex-direction: column;
+    max-width: 450px;
+  }
 }
 
 .login-card {
-  width: 520px;
-  padding: 30px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   color: white;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--space-lg);
+  }
+}
+
+.login-card h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.login-card h2 {
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.login-card label {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .login-card input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
 }
 
-.login-card button {
+.login-card input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.login-card button[type="submit"] {
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
+  padding: 1rem;
+  border-radius: 12px;
   border: none;
   background: #ffffff;
-  color: #021d40;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.main-card::before {
-  content: "";
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  top: -50px;
-  right: -50px;
-}
-
-.signup-btn {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  background: #ffffff;
-  color: #011c3f;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-}
-
-.signup-label {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1rem;
   margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.login-card button:hover {
+  transform: translateY(-2px);
+  background: #f8fafc;
 }
 
 .password-wrapper {
@@ -81,25 +102,51 @@
   width: 100%;
 }
 
-.password-wrapper input {
-  width: 100%;
-  padding: 10px;
-  padding-right: 40px; 
-  border-radius: 6px;
-  border: none;
-  outline: none;
-}
-
 .eye-icon {
   position: absolute;
-  right: 12px;
-  top: 40%;
+  right: 1rem;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  color: #555;
-  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
 }
 
-.signup-login {
-  margin-top: 1rem;
+.signup-label {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.signup-btn {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.signup-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Decorative elements */
+.main-card::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  z-index: 0;
 }

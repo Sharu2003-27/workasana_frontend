@@ -110,7 +110,8 @@ function ProjectDetails() {
               </div>
             </div>
 
-            <div className="section-header" style={{ marginTop: "20px" }}>
+            <div className="section-header">
+
               <h3>Tasks</h3>
 
               <div className="section-left">
@@ -143,8 +144,9 @@ function ProjectDetails() {
             {filteredTasks.length === 0 ? (
               <p>No tasks found</p>
             ) : (
-              <div className="task-list-container">
+              <div className="table-container">
                 <table className="task-table">
+
                   <thead>
                     <tr>
                       <th>TASKS</th>
@@ -216,6 +218,7 @@ function ProjectDetails() {
                   </tbody>
                 </table>
               </div>
+
             )}
 
           </>
